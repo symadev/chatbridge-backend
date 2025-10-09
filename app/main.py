@@ -12,7 +12,7 @@ load_dotenv()
 app = FastAPI()
 openai_client = OpenAI()
 
-# ✅ CORS setup
+#  CORS setup
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -26,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Vector DB connection (একবার load করো)
+#  Vector DB connection (load once)
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 vector_db = QdrantVectorStore.from_existing_collection(
     url="http://localhost:6333",
@@ -41,15 +41,15 @@ class MessageRequest(BaseModel):
 class MessageResponse(BaseModel):
     reply: str
 
-# ✅ POST endpoint with RAG logic
+#  POST endpoint with RAG logic
 @app.post("/chat", response_model=MessageResponse)
 async def chat_endpoint(request: MessageRequest):
     user_query = request.text
     
-    # Vector DB থেকে relevant chunks খুঁজে বের করো
+    # find relevant chunks from vector db
     search_results = vector_db.similarity_search(query=user_query, k=4)
     
-    # Context তৈরি করো
+    # make the context here 
     context = "\n\n\n".join([
         f"Page Content: {result.page_content}\nPage Number: {result.metadata['page_label']}\nFile Location: {result.metadata['source']}" 
         for result in search_results
@@ -58,7 +58,7 @@ async def chat_endpoint(request: MessageRequest):
     # System prompt
     SYSTEM_PROMPT = f"""
     You are a helpful AI Assistant who answers user query based on the available context retrieved from a PDF file along with page_contents and page number.
-    You should only answer the user based on the following context and navigate the user to open the right page number to know more. You can also talk cordially about personal problems.
+    You should only answer the user based on the following context and no need to including the page number but if user ask you a question then try to answer in few sentence.Try to concise it. You can also talk cordially about personal problems.
     
     Context:
     {context}
@@ -66,7 +66,7 @@ async def chat_endpoint(request: MessageRequest):
     
     # OpenAI API call
     response = openai_client.chat.completions.create(
-        model="gpt-5",  # ⚠️ "gpt-5" এখনো নেই, "gpt-4o" বা "gpt-4" use করো
+        model="gpt-5",  
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_query},
