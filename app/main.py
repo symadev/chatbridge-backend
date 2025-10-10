@@ -1,18 +1,19 @@
-# backend/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
-from langchain_qdrant import QdrantVectorStore
-from openai import OpenAI
+from contextlib import asynccontextmanager
+from app.database.mongodb import MongoDB
+from app.routers import auth, chat
 
-load_dotenv()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup এবং shutdown events"""
+    MongoDB.connect_db()
+    yield
+    MongoDB.close_db()
 
-app = FastAPI()
-openai_client = OpenAI()
+app = FastAPI(title="ChatBridge API", lifespan=lifespan)
 
-#  CORS setup
+# CORS
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -26,53 +27,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#  Vector DB connection (load once)
-embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
-vector_db = QdrantVectorStore.from_existing_collection(
-    url="http://localhost:6333",
-    collection_name="learning_rag",
-    embedding=embedding_model,
-)
+# Routers # aiakhe amra just rouet gulo load korlam
+app.include_router(auth.router)
+app.include_router(chat.router)
 
-# Input/Output models
-class MessageRequest(BaseModel):
-    text: str
-
-class MessageResponse(BaseModel):
-    reply: str
-
-#  POST endpoint with RAG logic
-@app.post("/chat", response_model=MessageResponse)
-async def chat_endpoint(request: MessageRequest):
-    user_query = request.text
-    
-    # find relevant chunks from vector db
-    search_results = vector_db.similarity_search(query=user_query, k=4)
-    
-    # make the context here 
-    context = "\n\n\n".join([
-        f"Page Content: {result.page_content}\nPage Number: {result.metadata['page_label']}\nFile Location: {result.metadata['source']}" 
-        for result in search_results
-    ])
-    
-    # System prompt
-    SYSTEM_PROMPT = f"""
-    You are a helpful AI Assistant who answers user query based on the available context retrieved from a PDF file along with page_contents and page number.
-    You should only answer the user based on the following context and no need to including the page number but if user ask you a question then try to answer in few sentence.Try to concise it. You can also talk cordially about personal problems.
-    if the use query is not related to the context, politely inform them  sorry ,you can only answer questions related to the provided context.
-    Context:
-    {context}
-    """
-    
-    # OpenAI API call
-    response = openai_client.chat.completions.create(
-        model="gpt-5",  
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_query},
-        ]
-    )
-    
-    bot_reply = response.choices[0].message.content
-    
-    return {"reply": bot_reply}
+@app.get("/")
+async def root():
+    return {"message": "ChatBridge API is running!"}
