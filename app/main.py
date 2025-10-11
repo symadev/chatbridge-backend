@@ -15,8 +15,8 @@ app = FastAPI(title="ChatBridge API", lifespan=lifespan)
 
 # CORS
 origins = [
+    "https://chatbridge-lemon.vercel.app",
     "http://localhost:5173",
-    "http://localhost:3000",
 ]
 
 app.add_middleware(
