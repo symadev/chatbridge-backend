@@ -6,7 +6,7 @@ from app.routers import auth, chat
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup এবং shutdown events"""
+    """Startup and shutdown events"""
     MongoDB.connect_db()
     yield
     MongoDB.close_db()

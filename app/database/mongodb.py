@@ -25,7 +25,7 @@ class MongoDB:
     @classmethod
     def get_database(cls):
         """Database instance return করো"""
-        return cls.client.ChatBridge  # Database name
+        return cls.client.ChatBridge  # My Database name
     
     @classmethod
     def get_collection(cls, collection_name: str):
