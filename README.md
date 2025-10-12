@@ -70,65 +70,77 @@ Ask questions and get **AI-powered answers** with **exact page references**.
 
 Follow these steps to set up and run the ChatBridge Backend locally 👇
 
-```bash
+
 # 1️⃣ Clone the repository
-```
+
+```bash
 git clone https://github.com/symadev/chatbridge-backend.git
 ```
 
 
-# 2️⃣ Navigate to the project directory
 
+# 2️⃣ Navigate to the project directory
+```bash
 cd chatbridge-backend
 
 # 3️⃣ Create a virtual environment (Windows)
-```
+
+```bash
 python -m venv venv
 ```
-```
+```bash
 venv\Scripts\activate
 ```
 
 # 💻 For Mac/Linux
-```
+
+```bash
 source venv/bin/activate
 ```
 
 # 4️⃣ Install dependencies
-```
+
+```bash
 pip install -r requirements.txt
 ```
 # or
-```
+
+```bash
 yarn install
 ```
 
 # 5️⃣ Start Qdrant database
-```
+
+```bash
 cd app/rag
 ```
-```
+```bash
 docker-compose up -d
 ```
 
 # 6️⃣ Index PDF documents (first time only)
-```
+
+```bash
 python index.py
 ```
 
 # 7️⃣ Start the development server
-```
+```bash
 cd ../..
 ```
-```
+```bash
 uvicorn app.main:app --reload
 ```
 # or
-```
+
+```bash
 yarn dev
+
 ```
 
 # 8️⃣ Open your browser
-```
+
+```bash
 http://localhost:8000/chat
+
 ```
