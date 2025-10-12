@@ -77,11 +77,11 @@ Follow these steps to set up and run the ChatBridge Backend locally 👇
 git clone https://github.com/symadev/chatbridge-backend.git
 ```
 
-
-
 # 2️⃣ Navigate to the project directory
+
 ```bash
 cd chatbridge-backend
+```
 
 # 3️⃣ Create a virtual environment (Windows)
 
