@@ -34,3 +34,8 @@ app.include_router(chat.router)
 @app.get("/")
 async def root():
     return {"message": "ChatBridge API is running!"}
+
+
+@app.api_route("/", methods=["GET", "HEAD"])
+async def root():
+    return {"message": "Server is running"}
