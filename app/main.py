@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers # aiakhe amra just rouet gulo load korlam
+# Routers # aiakhe amra just route gulo load korlam
 app.include_router(auth.router)
 app.include_router(chat.router)
 
